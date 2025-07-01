@@ -145,6 +145,7 @@ where
     }
 
     let body = soap_operation.body.rust_type.xml_name().expect("xml_name not found");
+    let body_rust_name = to_pascal_case(body);
     let body_field_name = as_field_name(&to_snake_case(body));
     let xml_name = soap_operation.body.rust_type.xml_name().expect("xml_name not found");
 
@@ -166,10 +167,10 @@ where
             writer,
             "    #[yaserde(prefix = \"{abbreviation}\", rename = \"{xml_name}\")]"
         )?;
-        writeln!(writer, "    pub {body_field_name}: {mod_name}::{body},",)?;
+        writeln!(writer, "    pub {body_field_name}: {mod_name}::{body_rust_name},",)?;
     } else {
         writeln!(writer, "    #[yaserde(rename = \"{xml_name}\")]")?;
-        writeln!(writer, "    pub {body_field_name}: {body},")?;
+        writeln!(writer, "    pub {body_field_name}: {body_rust_name},")?;
     }
     writeln!(writer, "}}")?;
 

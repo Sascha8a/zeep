@@ -4,7 +4,7 @@ use crate::{
     model::{TryFromNode, field::resolve_type},
     reader::WriteXml,
 };
-use inflector::cases::snakecase::to_snake_case;
+use inflector::cases::{pascalcase::to_pascal_case, snakecase::to_snake_case};
 use reqwest::Url;
 use std::{io, rc::Rc};
 
@@ -98,16 +98,18 @@ where
 {
     // generate an async fn for the operation
     let rust_fn_name = to_snake_case(operation_name);
-    let request_name = format!("{operation_name}InputEnvelope");
+    let rust_struct_name = to_pascal_case(operation_name);
+    let request_name = format!("{rust_struct_name}InputEnvelope");
     let response_name = operation
         .output
         .as_ref()
         .map(|_| format!("{operation_name}OutputEnvelope"));
 
     if let Some(res_name) = response_name {
+        let res_struct_name = to_pascal_case(&res_name);
         writeln!(
             writer,
-            "pub async fn {rust_fn_name}(&self, req: {request_name}) -> error::SoapResult<{res_name}> {{"
+            "pub async fn {rust_fn_name}(&self, req: {request_name}) -> error::SoapResult<{res_struct_name}> {{"
         )?;
     } else {
         writeln!(
